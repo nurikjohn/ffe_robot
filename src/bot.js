@@ -198,9 +198,11 @@ bot.on("poll_answer", async (ctx) => {
 
             ctx.telegram.sendMessage(
                 user.telegram_user_id,
-                `Ball: ${(correctAnswersCount * MAX_BALL) / QUESTIONS_COUNT} (${
-                    (correctAnswersCount / QUESTIONS_COUNT) * 100
-                }%)
+                `Ball: ${
+                    (correctAnswersCount * MAX_BALL) / QUESTIONS_COUNT
+                } (${((correctAnswersCount / QUESTIONS_COUNT) * 100).toFixed(
+                    2
+                )}%)
 To'g'ri javoblar: ${correctAnswersCount}
 Xato javoblar: ${incorrectAnswersCount}
 
