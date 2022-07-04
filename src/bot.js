@@ -55,7 +55,20 @@ const getRandomQuestion = async (
 };
 
 bot.start(async (ctx) => {
-    const subjects = await Subject.find();
+    const user = ctx.session.user;
+
+    const subjects = await Subject.find({
+        $or: [
+            {
+                public: true,
+            },
+            {
+                allowed_users: {
+                    $in: [user._id],
+                },
+            },
+        ],
+    });
 
     ctx.reply(
         `Fan tanlang

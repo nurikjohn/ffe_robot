@@ -10,6 +10,16 @@ const schema = new Schema(
             type: Number,
             default: 3,
         },
+        public: {
+            type: Boolean,
+            default: false,
+        },
+        allowed_users: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
     },
     {
         timestamps: {
