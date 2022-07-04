@@ -11,21 +11,23 @@ exports.activeUser = async (ctx, next) => {
     const tgUser =
         ctx.message?.chat ?? ctx.callbackQuery?.from ?? ctx.pollAnswer?.user;
 
-    const user = await User.findOneAndUpdate(
-        { telegram_user_id: tgUser.id },
-        {
-            first_name: tgUser.first_name,
-            last_name: tgUser.last_name,
-            telegram_username: tgUser.username,
-            telegram_user_id: tgUser.id,
-        },
-        {
-            upsert: true,
-            new: true,
-        }
-    );
+    if (tgUser) {
+        const user = await User.findOneAndUpdate(
+            { telegram_user_id: tgUser.id },
+            {
+                first_name: tgUser.first_name,
+                last_name: tgUser.last_name,
+                telegram_username: tgUser.username,
+                telegram_user_id: tgUser.id,
+            },
+            {
+                upsert: true,
+                new: true,
+            }
+        );
 
-    ctx.session.user = user;
+        ctx.session.user = user;
 
-    next();
+        next();
+    }
 };
