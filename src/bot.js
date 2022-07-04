@@ -156,6 +156,8 @@ bot.on("poll_answer", async (ctx) => {
         is_completed: false,
     }).populate("questions.question");
 
+    if (!session) return null;
+
     const question = session.questions.find(
         ({ telegram_poll_id }) => telegram_poll_id == poll.poll_id
     );
@@ -177,7 +179,7 @@ bot.on("poll_answer", async (ctx) => {
             {
                 new: true,
             }
-        );
+        ).populate("subject questions.question");
 
         if (session.questions.length >= QUESTIONS_COUNT) {
             const correctAnswersCount = session.questions?.filter(
@@ -198,11 +200,11 @@ bot.on("poll_answer", async (ctx) => {
 
             ctx.telegram.sendMessage(
                 user.telegram_user_id,
-                `Ball: ${
-                    (correctAnswersCount * MAX_BALL) / QUESTIONS_COUNT
-                } (${((correctAnswersCount / QUESTIONS_COUNT) * 100).toFixed(
-                    2
-                )}%)
+                `Fan: ${session.subject.name}
+Ball: ${(correctAnswersCount * MAX_BALL) / QUESTIONS_COUNT} (${(
+                    (correctAnswersCount / QUESTIONS_COUNT) *
+                    100
+                ).toFixed(2)}%)
 To'g'ri javoblar: ${correctAnswersCount}
 Xato javoblar: ${incorrectAnswersCount}
 
@@ -211,7 +213,7 @@ Sarflangan vaqt: ${hours}:${minutes}`,
                     [
                         {
                             text: "Qayta urinib ko'rish",
-                            callback_data: `start_${session.subject}`,
+                            callback_data: `start_${session.subject._id}`,
                         },
                     ],
                 ])
