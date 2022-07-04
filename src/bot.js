@@ -16,11 +16,12 @@ bot.use(activeUser);
 const QUESTIONS_COUNT = 25;
 const MAX_BALL = 50;
 
-const getRandomQuestion = async (excludedDocuments = []) => {
+const getRandomQuestion = async (excludedDocuments = [], subject) => {
     const query = {
         _id: {
             $nin: excludedDocuments,
         },
+        subject,
     };
 
     const questionsCount = await Question.countDocuments(query);
@@ -108,7 +109,7 @@ Oldinroq boshlangan testlarni yakunlash uchun /stop buyrug'ini yuborishingiz mum
         );
     }
 
-    const question = await getRandomQuestion();
+    const question = await getRandomQuestion([], subjectId);
 
     if (question) {
         ctx.answerCbQuery();
@@ -189,6 +190,16 @@ bot.on("poll_answer", async (ctx) => {
             const incorrectAnswersCount =
                 session.questions.length - correctAnswersCount;
 
+            const ball = session.questions?.reduce((summ, question) => {
+                if (question.correct) {
+                    return summ + question.question.difficulty;
+                }
+
+                return summ;
+            }, 0);
+
+            const percent = ((ball / MAX_BALL) * 100).toFixed(2);
+
             const startTime = dayjs(session.created_at);
             const endTime = dayjs(session.updated_at);
 
@@ -201,10 +212,7 @@ bot.on("poll_answer", async (ctx) => {
             ctx.telegram.sendMessage(
                 user.telegram_user_id,
                 `Fan: ${session.subject.name}
-Ball: ${(correctAnswersCount * MAX_BALL) / QUESTIONS_COUNT} (${(
-                    (correctAnswersCount / QUESTIONS_COUNT) *
-                    100
-                ).toFixed(2)}%)
+Ball: ${ball} (${percent}%)
 To'g'ri javoblar: ${correctAnswersCount}
 Xato javoblar: ${incorrectAnswersCount}
 
@@ -224,7 +232,8 @@ Sarflangan vaqt: ${hours}:${minutes}`,
             });
         } else {
             const nextQuestion = await getRandomQuestion(
-                session.questions?.map(({ question }) => question._id)
+                session.questions?.map(({ question }) => question._id),
+                session.subject._id
             );
 
             const options = _.shuffle(nextQuestion.options);

@@ -20,6 +20,10 @@ const schema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "Subject",
         },
+        difficulty: {
+            type: Number,
+            default: 2,
+        },
     },
     {
         timestamps: {
