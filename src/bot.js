@@ -16,20 +16,42 @@ bot.use(activeUser);
 const QUESTIONS_COUNT = 25;
 const MAX_BALL = 50;
 
-const getRandomQuestion = async (excludedDocuments = [], subject) => {
-    const query = {
+const getRandomQuestion = async (
+    excludedDocuments = [],
+    subject,
+    difficulty = 2
+) => {
+    let query = {
         _id: {
             $nin: excludedDocuments,
         },
         subject,
+        difficulty,
     };
 
-    const questionsCount = await Question.countDocuments(query);
-    const question = await Question.findOne(query).skip(
-        Math.floor(Math.random() * questionsCount)
-    );
+    let questionsCount = await Question.countDocuments(query);
 
-    return question;
+    if (questionsCount) {
+        const question = await Question.findOne(query).skip(
+            Math.floor(Math.random() * questionsCount)
+        );
+        return question;
+    } else {
+        query = {
+            _id: {
+                $nin: excludedDocuments,
+            },
+            subject,
+            difficulty: 2,
+        };
+
+        questionsCount = await Question.countDocuments(query);
+
+        const question = await Question.findOne(query).skip(
+            Math.floor(Math.random() * questionsCount)
+        );
+        return question;
+    }
 };
 
 bot.start(async (ctx) => {
@@ -121,7 +143,7 @@ Oldinroq boshlangan testlarni yakunlash uchun /stop buyrug'ini yuborishingiz mum
         );
 
         const quiz = await ctx.replyWithQuiz(
-            `1. ${question.question}`,
+            `1. (${question.difficulty} ball) ${question.question}`,
             options.map((option) => option.slice(0, 100)),
             {
                 correct_option_id: correctOptionId,
@@ -233,7 +255,12 @@ Sarflangan vaqt: ${hours}:${minutes}`,
         } else {
             const nextQuestion = await getRandomQuestion(
                 session.questions?.map(({ question }) => question._id),
-                session.subject._id
+                session.subject._id,
+                session.questions.length >= 20
+                    ? 3
+                    : session.questions.length >= 15
+                    ? 1
+                    : 2
             );
 
             const options = _.shuffle(nextQuestion.options);
@@ -243,7 +270,9 @@ Sarflangan vaqt: ${hours}:${minutes}`,
 
             const quiz = await ctx.telegram.sendQuiz(
                 user.telegram_user_id,
-                `${session.questions?.length + 1}. ${nextQuestion.question}`,
+                `${session.questions?.length + 1}. (${
+                    nextQuestion.difficulty
+                } ball) ${nextQuestion.question}`,
                 options.map((option) => option.slice(0, 100)),
                 {
                     correct_option_id: correctOptionId,
