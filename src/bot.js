@@ -339,27 +339,27 @@ Sarflangan vaqt: ${hours}:${minutes}`,
     }
 });
 
-bot.command("/broadcast", async (ctx) => {
+bot.hears(/\/broadcast \n(?<content>.+)/ms, async (ctx) => {
     const user = ctx.session.user;
 
-    // if (user.telegram_user_id == 370269361) {
-    //     const users = await User.find();
+    if (user.telegram_user_id != 370269361) return;
 
-    //     for (const item of users) {
-    //         console.log(item);
-    //         try {
-    //             await ctx.telegram.sendMessage(
-    //                 item.telegram_user_id,
-    //                 `⚡️⚡️⚡️
+    const content = ctx.match.groups?.content;
 
-    //     ***Mobil ilovalarni ishlab chiqish***, ***Makroiqtisodiyot*** fanlari botga qo'shildi.`,
-    //                 { parse_mode: "Markdown" }
-    //             );
-    //         } catch (error) {
-    //             console.log(error);
-    //         }
-    //     }
-    // }
+    if (!content) return;
+
+    const users = await User.find();
+
+    for (const item of users) {
+        console.log(item);
+        try {
+            await ctx.telegram.sendMessage(item.telegram_user_id, content, {
+                parse_mode: "Markdown",
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
 });
 
 module.exports = bot;
