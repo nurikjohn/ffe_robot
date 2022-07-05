@@ -310,22 +310,22 @@ Sarflangan vaqt: ${hours}:${minutes}`,
 bot.command("/broadcast", async (ctx) => {
     const user = ctx.session.user;
 
-    if (user.telegram_user_id == 370269361) {
-        const users = await User.find();
-        users.map((user) => {
-            try {
-                ctx.telegram.sendMessage(
-                    user.telegram_user_id,
-                    `⚡️⚡️⚡️
-                
-    ***Mobil ilovalarni ishlab chiqish***, ***Makroiqtisodiyot*** fanlari botga qo'shildi.`,
-                    { parse_mode: "Markdown" }
-                );
-            } catch (error) {
-                console.log(error);
-            }
-        });
-    }
+    // if (user.telegram_user_id == 370269361) {
+    //     const users = await User.find();
+    //     users.map((user) => {
+    //         try {
+    //             ctx.telegram.sendMessage(
+    //                 user.telegram_user_id,
+    //                 `⚡️⚡️⚡️
+
+    // ***Mobil ilovalarni ishlab chiqish***, ***Makroiqtisodiyot*** fanlari botga qo'shildi.`,
+    //                 { parse_mode: "Markdown" }
+    //             );
+    //         } catch (error) {
+    //             console.log(error);
+    //         }
+    //     });
+    // }
 });
 
 module.exports = bot;
